@@ -20,6 +20,10 @@ data "template_file" "vault_backend_connection" {
   }
 }
 
+resource "mysql_database" "mysql_db" {
+  name = "${data.terraform_remote_state.db.db_name}"
+}
+
 #resource "vault_generic_secret" "MySQLConnection" {
 #  path      = "db-${data.terraform_remote_state.db.server_name}/config/${data.terraform_remote_state.db.db_name}"
 #  data_json = "${data.template_file.vault_backend_connection.rendered}"
@@ -39,14 +43,14 @@ resource "vault_database_secret_backend_role" "mysql_admin" {
   backend             = "${vault_mount.db.path}"
   name                = "mysql_admin"
   db_name             = "${data.terraform_remote_state.db.db_name}"
-  creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant all on *.* to '{{name}}'@'%'"
+  creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant all on ${data.terraform_remote_state.db.db_name}.* to '{{name}}'@'%'"
 }
 
 resource "vault_database_secret_backend_role" "mysql_ro" {
   backend             = "${vault_mount.db.path}"
   name                = "mysql_ro"
   db_name             = "${data.terraform_remote_state.db.db_name}"
-  creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant SELECT on *.* to '{{name}}'@'%'"
+  creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant SELECT on ${data.terraform_remote_state.db.db_name}.* to '{{name}}'@'%'"
 }
 
 # CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';
