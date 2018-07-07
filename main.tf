@@ -1,9 +1,9 @@
 data "vault_generic_secret" "db_credentials" {
-  path = "secret/database/${var.server_name}/${var.db_name}/credentials"
+  path = "secret/database/${data.terraform_remote_state.db.server_name}/${data.terraform_remote_state.db.db_name}/credentials"
 }
 
 resource "vault_mount" "db" {
-  path = "db-${var.server_name}"
+  path = "db-${data.terraform_remote_state.db.server_name}"
   type = "database"
 }
 
@@ -17,7 +17,7 @@ resource "vault_database_secret_backend_connection" "mysql" {
   ]
 
   mysql {
-    connection_url = "mysql://${data.vault_generic_secret.db_credentials.data["username"]}:${data.vault_generic_secret.db_credentials.data["password"]}@${var.db_fqdn}:3306/${var.db_name}"
+    connection_url = "mysql://${data.vault_generic_secret.db_credentials.data["username"]}:${data.vault_generic_secret.db_credentials.data["password"]}@${data.terraform_remote_state.db.fqdn}:3306/${data.terraform_remote_state.db.db_name}"
   }
 }
 

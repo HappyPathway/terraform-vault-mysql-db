@@ -1,9 +1,9 @@
-variable "server_name" {}
+variable "organization" {
+  type        = "string"
+  description = "TFE Organization"
+}
 
-variable "db_name" {}
-
-variable "db_fqdn" {}
-
-variable "vault_cluster" {}
-
-variable "vault_token" {}
+variable "db_workspace" {
+  type        = "string"
+  description = "DB Workspace"
+}
