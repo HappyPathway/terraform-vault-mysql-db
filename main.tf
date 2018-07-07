@@ -20,10 +20,6 @@ data "template_file" "vault_backend_connection" {
   }
 }
 
-resource "mysql_database" "mysql_db" {
-  name = "${data.terraform_remote_state.db.db_name}"
-}
-
 #resource "vault_generic_secret" "MySQLConnection" {
 #  path      = "db-${data.terraform_remote_state.db.server_name}/config/${data.terraform_remote_state.db.db_name}"
 #  data_json = "${data.template_file.vault_backend_connection.rendered}"
