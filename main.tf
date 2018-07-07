@@ -13,7 +13,7 @@ resource "vault_database_secret_backend_connection" "mysql" {
   allowed_roles = ["mysql_admin", "mysql_ro"]
 
   mysql {
-    connection_url = "${data.vault_generic_secret.db_credentials.data["username"]}@${data.terraform_remote_state.db.server_name}:${data.vault_generic_secret.db_credentials.data["password"]}@tcp(${var.db_host}:3306)/${data.terraform_remote_state.db.db_name}"
+    connection_url = "${data.vault_generic_secret.db_credentials.data["username"]}@${data.terraform_remote_state.db.server_name}:${data.vault_generic_secret.db_credentials.data["password"]}@tcp(${data.terraform_remote_state.db.fqdn}:3306)/${data.terraform_remote_state.db.db_name}"
   }
 }
 
