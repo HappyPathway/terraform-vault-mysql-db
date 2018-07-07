@@ -7,3 +7,7 @@ variable "db_workspace" {
   type        = "string"
   description = "DB Workspace"
 }
+
+variable "vault_token" {}
+
+variable "vault_cluster" {}
