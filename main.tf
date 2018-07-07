@@ -19,16 +19,16 @@ resource "vault_database_secret_backend_connection" "mysql" {
 
 resource "vault_database_secret_backend_role" "mysql_admin" {
   backend             = "${vault_mount.db.path}"
-  name                = "mysql_admin_${var.client_host}"
+  name                = "mysql_admin_${var.client_addr}"
   db_name             = "${vault_database_secret_backend_connection.mysql.name}"
-  creation_statements = "CREATE USER '{{name}}'@'${var.client_host}' IDENTIFIED BY '{{password}}'; grant all on *.* to '{{name}}'@'${var.client_host}'"
+  creation_statements = "CREATE USER '{{name}}'@'${var.client_addr}' IDENTIFIED BY '{{password}}'; grant all on *.* to '{{name}}'@'${var.client_addr}'"
 }
 
 resource "vault_database_secret_backend_role" "mysql_ro" {
   backend             = "${vault_mount.db.path}"
-  name                = "mysql_ro_${var.client_host}"
+  name                = "mysql_ro_${var.client_addr}"
   db_name             = "${vault_database_secret_backend_connection.mysql.name}"
-  creation_statements = "CREATE USER '{{name}}'@'${var.client_host}' IDENTIFIED BY '{{password}}'; grant SELECT on *.* to '{{name}}'@'${var.client_host}'"
+  creation_statements = "CREATE USER '{{name}}'@'${var.client_addr}' IDENTIFIED BY '{{password}}'; grant SELECT on *.* to '{{name}}'@'${var.client_addr}'"
 }
 
 # CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';
