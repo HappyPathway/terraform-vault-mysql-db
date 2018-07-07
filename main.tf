@@ -7,15 +7,31 @@ resource "vault_mount" "db" {
   type = "database"
 }
 
-resource "vault_database_secret_backend_connection" "mysql" {
-  backend       = "${vault_mount.db.path}"
-  name          = "mysql"
-  allowed_roles = ["mysql_admin", "mysql_ro"]
+data "template_file" "vault_backend_connection" {
+  template = "${file("${path.module}/database_connection.json.tpl")}"
 
-  mysql {
-    connection_url = "${data.vault_generic_secret.db_credentials.data["username"]}@${data.terraform_remote_state.db.server_name}:${data.vault_generic_secret.db_credentials.data["password"]}@tcp(${data.terraform_remote_state.db.fqdn}:3306)/${data.terraform_remote_state.db.db_name}"
+  vars = {
+    db_host  = "${data.terraform_remote_state.db.fqdn}"
+    db_port  = 3306
+    username = "${data.vault_generic_secret.db_credentials.data["username"]}"
+    password = "${data.vault_generic_secret.db_credentials.data["password"]}"
   }
 }
+
+resource "vault_generic_secret" "MySQLConnection" {
+  path      = "${vault_mount.db.path}"
+  json_data = "${template_file.vault_backend_connectin.rendered}"
+}
+
+#resource "vault_database_secret_backend_connection" "mysql" {
+#  backend       = "${vault_mount.db.path}"
+#  name          = "mysql"
+#  allowed_roles = ["mysql_admin", "mysql_ro"]
+
+#  mysql {
+#    connection_url = "${data.vault_generic_secret.db_credentials.data["username"]}@${data.terraform_remote_state.db.server_name}:${data.vault_generic_secret.db_credentials.data["password"]}@tcp(${data.terraform_remote_state.db.fqdn}:3306)/${data.terraform_remote_state.db.db_name}"
+#  }
+#}
 
 resource "vault_database_secret_backend_role" "mysql_admin" {
   backend             = "${vault_mount.db.path}"
