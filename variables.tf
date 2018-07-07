@@ -13,3 +13,5 @@ variable "vault_token" {}
 variable "vault_cluster" {}
 
 variable "db_host" {}
+
+variable "client_addr" {}
