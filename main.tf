@@ -12,10 +12,6 @@ resource "vault_database_secret_backend_connection" "mysql" {
   name          = "mysql"
   allowed_roles = ["dev", "prod"]
 
-  depends_on = [
-    "azurerm_mysql_server.server",
-  ]
-
   mysql {
     connection_url = "mysql://${data.vault_generic_secret.db_credentials.data["username"]}:${data.vault_generic_secret.db_credentials.data["password"]}@${data.terraform_remote_state.db.fqdn}:3306/${data.terraform_remote_state.db.db_name}"
   }
