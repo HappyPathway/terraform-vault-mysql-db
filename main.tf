@@ -19,8 +19,8 @@ data "template_file" "vault_backend_connection" {
 }
 
 resource "vault_generic_secret" "MySQLConnection" {
-  path      = "${vault_mount.db.path}"
-  json_data = "${template_file.vault_backend_connectin.rendered}"
+  path      = "db-${data.terraform_remote_state.db.server_name}/config/${data.terraform_remote_state.db.db_name}"
+  json_data = "${template_file.vault_backend_connection.rendered}"
 }
 
 #resource "vault_database_secret_backend_connection" "mysql" {
@@ -36,14 +36,14 @@ resource "vault_generic_secret" "MySQLConnection" {
 resource "vault_database_secret_backend_role" "mysql_admin" {
   backend             = "${vault_mount.db.path}"
   name                = "mysql_admin"
-  db_name             = "${vault_database_secret_backend_connection.mysql.name}"
+  db_name             = "${data.terraform_remote_state.db.db_name}"
   creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant all on *.* to '{{name}}'@'%'"
 }
 
 resource "vault_database_secret_backend_role" "mysql_ro" {
   backend             = "${vault_mount.db.path}"
   name                = "mysql_ro"
-  db_name             = "${vault_database_secret_backend_connection.mysql.name}"
+  db_name             = "${data.terraform_remote_state.db.db_name}"
   creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant SELECT on *.* to '{{name}}'@'%'"
 }
 
