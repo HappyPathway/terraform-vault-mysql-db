@@ -13,6 +13,7 @@ data "template_file" "vault_backend_connection" {
   vars = {
     db_host  = "${data.terraform_remote_state.db.fqdn}"
     db_port  = 3306
+    db_name  = "${data.terraform_remote_state.db.db_name}"
     username = "${data.vault_generic_secret.db_credentials.data["username"]}"
     password = "${data.vault_generic_secret.db_credentials.data["password"]}"
   }
