@@ -10,7 +10,7 @@ resource "vault_mount" "db" {
 resource "vault_database_secret_backend_connection" "mysql" {
   backend       = "${vault_mount.db.path}"
   name          = "mysql"
-  allowed_roles = ["dev", "prod"]
+  allowed_roles = ["mysql_admin", "mysql_ro"]
 
   mysql {
     connection_url = "${data.vault_generic_secret.db_credentials.data["username"]}@${data.terraform_remote_state.db.server_name}:${data.vault_generic_secret.db_credentials.data["password"]}@tcp(${var.db_host}:3306)/${data.terraform_remote_state.db.db_name}"
