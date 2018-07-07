@@ -1,15 +1,5 @@
-data "template_file" "credentials" {
-  template = "${file("${path.module}/vault_credentials.json.tpl")}"
-
-  vars {
-    username = "${random_string.username.result}"
-    password = "${random_string.password.result}"
-  }
-}
-
-resource "vault_generic_secret" "credentials" {
-  path      = "secret/database/${var.server_name}/${var.db_name}/credentials"
-  data_json = "${data.template_file.credentials.rendered}"
+data "vault_generic_secret" "db_credentials" {
+  path = "secret/database/${var.server_name}/${var.db_name}/credentials"
 }
 
 resource "vault_mount" "db" {
@@ -27,7 +17,23 @@ resource "vault_database_secret_backend_connection" "mysql" {
   ]
 
   mysql {
-    connection_url = "mysql://${random_string.username.result}:${random_string.password.result}@${azurerm_mysql_server.server.fqdn}:3306/${var.db_name}"
+    connection_url = "mysql://${data.vault_generic_secret.db_credentials.data["username"]}:${data.vault_generic_secret.db_credentials.data["password"]}@${var.db_fqdn}:3306/${var.db_name}"
   }
 }
+
+resource "vault_database_secret_backend_role" "role" {
+  backend             = "${vault_mount.db.path}"
+  name                = "mysql_admin"
+  db_name             = "${vault_database_secret_backend_connection.mysql.name}"
+  creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant all on *.* to '{{name}}'@'%'"
+}
+
+resource "vault_database_secret_backend_role" "role" {
+  backend             = "${vault_mount.db.path}"
+  name                = "mysql_ro"
+  db_name             = "${vault_database_secret_backend_connection.mysql.name}"
+  creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant SELECT on *.* to '{{name}}'@'%'"
+}
+
+# CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';
 
