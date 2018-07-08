@@ -37,9 +37,9 @@ resource "vault_database_secret_backend_connection" "mysql" {
 
 resource "vault_database_secret_backend_role" "mysql_admin" {
   backend             = "${vault_mount.db.path}"
-  name                = "mysql_admin"
+  name                = "mysql_crud"
   db_name             = "${data.terraform_remote_state.db.db_name}"
-  creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant all on ${data.terraform_remote_state.db.db_name}.* to '{{name}}'@'%'"
+  creation_statements = "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; grant SELECT,INSERT,UPDATE,DELETE on ${data.terraform_remote_state.db.db_name}.* to '{{name}}'@'%'"
 }
 
 resource "vault_database_secret_backend_role" "mysql_ro" {
